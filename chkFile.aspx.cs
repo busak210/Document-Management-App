@@ -1,0 +1,104 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data;
+using System.Data.SqlClient;
+
+public partial class chkFile : System.Web.UI.Page
+{
+    Connect c;
+     protected void Page_Load(object sender, EventArgs e)
+    {
+        //Label1.Visible = true;
+        Label2.Visible = true;
+        //Label3.Visible = true;
+
+
+        Label7.Visible = true;
+        Label8.Visible = true;
+
+
+
+        Label12.Visible = true;
+        Label7.Text = DateTime.Now.ToShortDateString();
+        Label1.Text = Session["username"].ToString();
+
+        try
+        {
+            c = new Connect();
+            c.shola();
+            //c.com.CommandText = "SELECT [schlid],[ID],[StaffName],[username],[pwd],[Cat],[Class],[Arm] FROM [Teachers] where UserName='" + Session["UserName"] + "'";
+            c.com.CommandText = "spAdminLgin @username";
+            c.com.Parameters.Add(new SqlParameter("@username", Session["UserName"]));
+            // c.adapt.SelectCommand = c.com;
+            // c.adapt.Fill(c.ds1);
+            c.dr = c.com.ExecuteReader();
+            if (c.dr.Read())
+            {
+                //Label2.Text = c.ds1.Tables[0].Rows[0]["StaffName"].ToString();
+                Label2.Text = c.dr.GetString(3).ToString();
+            }
+            else
+            {
+                lblmsg.Text = "Contact the Admin";
+            }
+
+        }
+        catch (Exception me)
+        {
+            lblmsg.Text = me.Message;
+        }
+
+       
+        
+        
+    }
+
+
+     protected void btnok_Click(object sender, EventArgs e)
+     {
+         try
+         {
+
+             c = new Connect();
+             c.shola();
+             c.com.CommandText = " SELECT ROW_NUMBER() OVER(ORDER by MessageTitle,FileNo) AS SNo, MessageFrom, MessageTitle,FileSubjectMatter,[RecordStatus],FileTitle,FileNo,[TreatmentStatus] FROM tblRecordInfo where FileSubjectMatter='" + dplfsm.Text.ToString().Trim() + "' and FileTitle='" + dplft.Text.ToString().Trim() + "' and RecordStatus= '" + dplfs.Text.ToString().Trim() + "' and [TreatmentStatus]='Not Treated' ";
+             c.adapt.SelectCommand = c.com;
+             c.adapt.Fill(c.ds);
+             GridView1.DataSource = c.ds;
+             GridView1.DataBind();
+
+
+         }
+
+         catch (Exception me)
+         {
+             lblmsg.Text = me.Message;
+         }
+     }
+     protected void btnallfile_Click(object sender, EventArgs e)
+     {
+         try
+         {
+
+             c = new Connect();
+             c.shola();
+             c.com.CommandText = " SELECT ROW_NUMBER() OVER(ORDER by MessageTitle,FileNo) AS SNo, MessageFrom, MessageTitle,FileSubjectMatter,[RecordStatus],FileTitle,FileNo,TreatmentStatus FROM tblRecordInfo where  [TreatmentStatus] ='Not Treated'  ";
+             c.adapt.SelectCommand = c.com;
+             c.adapt.Fill(c.ds);
+             GridView1.DataSource = c.ds;
+             GridView1.DataBind();
+
+
+         }
+
+         catch (Exception me)
+         {
+             lblmsg.Text = me.Message;
+         }
+
+     }
+}
